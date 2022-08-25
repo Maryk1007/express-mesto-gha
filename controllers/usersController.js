@@ -73,7 +73,7 @@ module.exports.updateUser = (req, res, next) => {
     )
     .orFail((err) => {
       if (err.name === 'NotFoundError') {
-        res.status(NOT_FOUND_ERROR_CODE).send({ message: 'Запрашиваемый пользователь не найден.' });
+        res.status(NOT_FOUND_ERROR_CODE).send({ message: 'Запрашиваемый пользователь не найден' });
       }
     })
     .then((user) => {
@@ -83,10 +83,10 @@ module.exports.updateUser = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(VALIDATION_ERROR_CODE).send({ message: 'Переданы некорректные данные при обновлении профиля.' });
+        res.status(VALIDATION_ERROR_CODE).send({ message: 'Переданы некорректные данные при обновлении профиля' });
       }
       if (err.name === 'Error') {
-        res.status(ERROR_CODE).send({ message: 'Ошибка при обновлении профиля.' });
+        res.status(ERROR_CODE).send({ message: 'Внутренняя ошибка сервера' });
       }
     });
 };
@@ -103,7 +103,7 @@ module.exports.updateAvatar = (req, res, next) => {
     )
     .orFail((err) => {
       if (err.name === 'NotFoundError') {
-        res.status(NOT_FOUND_ERROR_CODE).send({ message: 'Запрашиваемый пользователь не найден.' });
+        res.status(NOT_FOUND_ERROR_CODE).send({ message: 'Запрашиваемый пользователь не найден' });
       }
     })
     .then((user) => {
@@ -113,10 +113,10 @@ module.exports.updateAvatar = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(VALIDATION_ERROR_CODE).send({ message: 'Переданы некорректные данные при обновлении профиля.' });
+        res.status(VALIDATION_ERROR_CODE).send({ message: 'Переданы некорректные данные при обновлении профиля' });
       }
       if (err.name === 'Error') {
-        res.status(ERROR_CODE).send({ message: 'Ошибка при обновлении профиля.' });
+        res.status(ERROR_CODE).send({ message: 'Внутренняя ошибка сервера' });
       }
     });
 };
