@@ -1,10 +1,11 @@
+/* eslint-disable no-unused-vars */
 const Card = require('../models/cardModel');
 const CastError = require('../errors/cast-error');
 const NotFoundError = require('../errors/not-found-error');
-// const InternalServerError = require('../errors/internal-server-error');
+const InternalServerError = require('../errors/internal-server-error');
 
-/** получить все карточки */
-module.exports.getCards = (req, res, next) => {
+// получить все карточки
+module.exports.getCards = (req, res) => {
   Card
     .find({})
     .then((cards) => {
@@ -12,10 +13,12 @@ module.exports.getCards = (req, res, next) => {
         .status(200)
         .send({ data: cards });
     })
-    .catch(next);
+    .catch((err) => {
+      res.status(InternalServerError).send({ message: 'Внутренняя ошибка сервера' });
+    });
 };
 
-/** создать карточку */
+// создать карточку
 module.exports.createCard = async (req, res, next) => {
   const { name, link } = req.body;
   const owner = req.user._id;
@@ -28,14 +31,13 @@ module.exports.createCard = async (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        next(new CastError('Введены некорректные данные'));
-      } else {
-        next(err);
+        res.status(CastError).send({ message: 'Введены некорректные данные' });
       }
+      res.status(InternalServerError).send({ message: 'Внутренняя ошибка сервера' });
     });
 };
 
-/** удалить карточку по ID */
+// удалить карточку по ID
 module.exports.deleteCard = (req, res, next) => {
   const { cardId } = req.params;
   const userId = req.user._id;
@@ -60,13 +62,12 @@ module.exports.deleteCard = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'CastError') {
         next(new CastError('Введены некорректные данные'));
-      } else {
-        next(err);
       }
+      res.status(InternalServerError).send({ message: 'Внутренняя ошибка сервера' });
     });
 };
 
-/** поставить лайк карточке */
+// поставить лайк карточке
 module.exports.likeCard = (req, res, next) => {
   const { cardId } = req.params;
   const userId = req.user._id;
@@ -87,13 +88,12 @@ module.exports.likeCard = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'CastError') {
         next(new CastError('Введены некорректные данные'));
-      } else {
-        next(err);
       }
+      res.status(InternalServerError).send({ message: 'Внутренняя ошибка сервера' });
     });
 };
 
-/** удалить лайк у карточки */
+// удалить лайк у карточки
 module.exports.dislikeCard = (req, res, next) => {
   const { cardId } = req.params;
   const userId = req.user._id;
@@ -114,8 +114,7 @@ module.exports.dislikeCard = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'CastError') {
         next(new CastError('Введены некорректные данные'));
-      } else {
-        next(err);
       }
+      res.status(InternalServerError).send({ message: 'Внутренняя ошибка сервера' });
     });
 };
