@@ -86,17 +86,14 @@ module.exports.likeCard = (req, res, next) => {
       { $addToSet: { likes: userId } },
       { new: true },
     )
-    .orFail(() => {
-      res.status(VALIDATION_ERROR_CODE).send({ message: 'Переданы некорректные данные' });
-    })
     .then((card) => {
       res
         .status(200)
         .send({ data: card });
     })
     .catch((err) => {
-      if (err.name === 'ValidationError') {
-        res.status(VALIDATION_ERROR_CODE).send({ message: 'Переданы некорректные данные при создании карточки' });
+      if (err.name === 'ValidationError' || err.name === 'CastError') {
+        res.status(VALIDATION_ERROR_CODE).send({ message: 'Переданы некорректные данные' });
       }
       if (err.name === 'Error') {
         res.status(ERROR_CODE).send({ message: 'Внутренняя ошибка сервера' });
