@@ -1,5 +1,6 @@
 /* eslint-disable no-unused-vars */
 const User = require('../models/userModel');
+const CastError = require('../errors/cast-error');
 
 const VALIDATION_ERROR_CODE = 400;
 const NOT_FOUND_ERROR_CODE = 404;
@@ -41,11 +42,14 @@ module.exports.getUsers = (req, res) => {
 // получить пользователя по ID
 module.exports.getUserById = (req, res) => {
   const { userId } = req.params;
-  // eslint-disable-next-line no-console
-  console.log(req.params);
   User.findById(userId)
     .then((user) => {
-      res.status(200).send({ data: user });
+      if (!user) {
+        throw new CastError('Переданы некорректные данные');
+      }
+      res
+        .status(200)
+        .send({ data: user });
     })
     .catch((err) => {
       if (err.name === 'NotFoundError') {
