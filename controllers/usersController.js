@@ -52,7 +52,7 @@ module.exports.getUserById = (req, res, next) => {
         .send({ data: user });
     })
     .catch((err) => {
-      if (err.name === 'ValidationError') {
+      if (err.name === 'NotFoundError') {
         res.status(NOT_FOUND_ERROR_CODE).send({ message: 'Пользователь не найден' });
       }
       if (err.name === 'Error') {
