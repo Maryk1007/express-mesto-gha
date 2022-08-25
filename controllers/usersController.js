@@ -1,21 +1,24 @@
 /* eslint-disable no-unused-vars */
 const User = require('../models/userModel');
-const CastError = require('../errors/cast-error');
-const NotFoundError = require('../errors/not-found-error');
-const InternalServerError = require('../errors/internal-server-error');
+
+const VALIDATION_ERROR_CODE = 400;
+const NOT_FOUND_ERROR_CODE = 404;
+const ERROR_CODE = 500;
 
 // добавить пользователя
-module.exports.createUser = (req, res, next) => {
+module.exports.createUser = (req, res) => {
   const { name, about, avatar } = req.body;
   User.create({ name, about, avatar })
     .then((user) => {
       res.status(201).send({ data: user });
     })
     .catch((err) => {
-      if (err.name === 'ValidationError' || err.name === 'CastError') {
-        next(new CastError('Введены некорректные данные пользователя'));
+      if (err.name === 'ValidationError') {
+        res.status(VALIDATION_ERROR_CODE).send({ message: 'Переданы некорректные данные при создании пользователя' });
       }
-      res.status(InternalServerError).send({ message: 'Внутренняя ошибка сервера' });
+      if (err.name === 'Error') {
+        res.status(ERROR_CODE).send({ message: 'Внутренняя ошибка сервера' });
+      }
     });
 };
 
@@ -26,7 +29,12 @@ module.exports.getUsers = (req, res) => {
       res.status(200).send({ data: users });
     })
     .catch((err) => {
-      res.status(InternalServerError).send({ message: 'Внутренняя ошибка сервера' });
+      if (err.name === 'NotFoundError') {
+        res.status(NOT_FOUND_ERROR_CODE).send({ message: 'Запрашиваемые пользователи не найдены' });
+      }
+      if (err.name === 'Error') {
+        res.status(ERROR_CODE).send({ message: 'Внутренняя ошибка сервера' });
+      }
     });
 };
 
@@ -37,17 +45,19 @@ module.exports.getUserById = (req, res, next) => {
     .findById(userId)
     .then((user) => {
       if (!user) {
-        throw new NotFoundError('Пользователь по указанному id не найден');
+        res.status(NOT_FOUND_ERROR_CODE).send({ message: 'Пользователь не найден' });
       }
       res
         .status(200)
         .send({ data: user });
     })
     .catch((err) => {
-      if (err.name === 'CastError') {
-        next(new CastError('Введен некорректный id пользователя'));
+      if (err.name === 'ValidationError') {
+        res.status(VALIDATION_ERROR_CODE).send({ message: 'Переданы некорректные данные' });
       }
-      res.status(InternalServerError).send({ message: 'Внутренняя ошибка сервера' });
+      if (err.name === 'Error') {
+        res.status(ERROR_CODE).send({ message: 'Внутренняя ошибка сервера' });
+      }
     });
 };
 
@@ -61,10 +71,10 @@ module.exports.updateUser = (req, res, next) => {
       { name, about },
       { new: true, runValidators: true },
     )
-    .orFail(() => {
-      const err = new Error('Пользователь по указанному id не найден');
-      err.name = 'NotFoundError';
-      throw err;
+    .orFail((err) => {
+      if (err.name === 'NotFoundError') {
+        res.status(NOT_FOUND_ERROR_CODE).send({ message: 'Запрашиваемый пользователь не найден.' });
+      }
     })
     .then((user) => {
       res
@@ -72,12 +82,12 @@ module.exports.updateUser = (req, res, next) => {
         .send({ user });
     })
     .catch((err) => {
-      if (err.name === 'NotFoundError') {
-        next(new NotFoundError('Пользователь по указанному id не найден'));
-      } else if (err.name === 'ValidationError' || err.name === 'CastError') {
-        next(new CastError('Введены некорректные данные пользователя'));
+      if (err.name === 'ValidationError') {
+        res.status(VALIDATION_ERROR_CODE).send({ message: 'Переданы некорректные данные при обновлении профиля.' });
       }
-      res.status(InternalServerError).send({ message: 'Внутренняя ошибка сервера' });
+      if (err.name === 'Error') {
+        res.status(ERROR_CODE).send({ message: 'Ошибка при обновлении профиля.' });
+      }
     });
 };
 
@@ -91,10 +101,10 @@ module.exports.updateAvatar = (req, res, next) => {
       { avatar },
       { new: true, runValidators: true },
     )
-    .orFail(() => {
-      const err = new Error('Пользователь по указанному id не найден');
-      err.name = 'NotFoundError';
-      throw err;
+    .orFail((err) => {
+      if (err.name === 'NotFoundError') {
+        res.status(NOT_FOUND_ERROR_CODE).send({ message: 'Запрашиваемый пользователь не найден.' });
+      }
     })
     .then((user) => {
       res
@@ -102,11 +112,11 @@ module.exports.updateAvatar = (req, res, next) => {
         .send({ user });
     })
     .catch((err) => {
-      if (err.name === 'NotFoundError') {
-        next(new NotFoundError('Пользователь по указанному id не найден'));
-      } else if (err.name === 'ValidationError' || err.name === 'CastError') {
-        next(new CastError('Введены некорректные данные пользователя'));
+      if (err.name === 'ValidationError') {
+        res.status(VALIDATION_ERROR_CODE).send({ message: 'Переданы некорректные данные при обновлении профиля.' });
       }
-      res.status(InternalServerError).send({ message: 'Внутренняя ошибка сервера' });
+      if (err.name === 'Error') {
+        res.status(ERROR_CODE).send({ message: 'Ошибка при обновлении профиля.' });
+      }
     });
 };
