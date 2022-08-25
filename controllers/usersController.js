@@ -41,11 +41,10 @@ module.exports.getUsers = (req, res) => {
 // получить пользователя по ID
 module.exports.getUserById = (req, res) => {
   const { userId } = req.params;
+  // eslint-disable-next-line no-console
+  console.log(req.params);
   User.findById(userId)
     .then((user) => {
-      if (!user) {
-        res.status(VALIDATION_ERROR_CODE).send({ message: 'Переданы некорректные данные' });
-      }
       res.status(200).send({ data: user });
     })
     .catch((err) => {
