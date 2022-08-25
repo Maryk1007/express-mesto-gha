@@ -45,7 +45,7 @@ module.exports.getUserById = (req, res, next) => {
     .findById(userId)
     .then((user) => {
       if (!user) {
-        res.status(NOT_FOUND_ERROR_CODE).send({ message: 'Пользователь не найден' });
+        res.status(VALIDATION_ERROR_CODE).send({ message: 'Переданы некорректные данные' });
       }
       res
         .status(200)
@@ -53,7 +53,7 @@ module.exports.getUserById = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(VALIDATION_ERROR_CODE).send({ message: 'Переданы некорректные данные' });
+        res.status(NOT_FOUND_ERROR_CODE).send({ message: 'Пользователь не найден' });
       }
       if (err.name === 'Error') {
         res.status(ERROR_CODE).send({ message: 'Внутренняя ошибка сервера' });
