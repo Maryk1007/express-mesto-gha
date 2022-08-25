@@ -44,21 +44,17 @@ module.exports.getUserById = (req, res, next) => {
   const { userId } = req.params;
   User.findById(userId)
     .then((user) => {
-      if (!user) {
-        throw new CastError('Переданы некорректные данные');
-      }
-      res
-        .status(200)
-        .send({ data: user });
+      res.status(200).send({ data: user });
     })
     .catch((err) => {
+      if (err.name === 'CastError') {
+        res.status(VALIDATION_ERROR_CODE).send({ message: 'Введены некорректные данные' });
+      }
       if (err.name === 'NotFoundError') {
         res.status(NOT_FOUND_ERROR_CODE).send({ message: 'Пользователь не найден' });
       }
       if (err.name === 'Error') {
         res.status(ERROR_CODE).send({ message: 'Внутренняя ошибка сервера' });
-      } else {
-        next(err);
       }
     });
 };
