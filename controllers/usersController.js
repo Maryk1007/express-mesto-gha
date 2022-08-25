@@ -55,6 +55,8 @@ module.exports.getUserById = (req, res, next) => {
       }
       if (err.name === 'Error') {
         res.status(ERROR_CODE).send({ message: 'Внутренняя ошибка сервера' });
+      } else {
+        next(err);
       }
     });
 };
