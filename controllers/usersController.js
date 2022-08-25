@@ -39,22 +39,23 @@ module.exports.getUsers = (req, res) => {
 };
 
 // получить пользователя по ID
-module.exports.getUserById = async (req, res) => {
-  try {
-    const users = await User.findById(req.params.userId);
-
-    res.send(users);
-  } catch (err) {
-    if (err.name === 'ValidationError') {
-      res.status(NOT_FOUND_ERROR_CODE).send({ message: 'Переданы некорректные данные' });
-    }
-    if (err.name === 'NotFoundError') {
-      res.status(NOT_FOUND_ERROR_CODE).send({ message: 'Пользователь не найден' });
-    }
-    if (err.name === 'Error') {
-      res.status(ERROR_CODE).send({ message: 'Внутренняя ошибка сервера' });
-    }
-  }
+module.exports.getUserById = (req, res) => {
+  const { userId } = req.params;
+  User.findById(userId)
+    .then((user) => {
+      if (!user) {
+        res.status(VALIDATION_ERROR_CODE).send({ message: 'Переданы некорректные данные' });
+      }
+      res.status(200).send({ data: user });
+    })
+    .catch((err) => {
+      if (err.name === 'NotFoundError') {
+        res.status(NOT_FOUND_ERROR_CODE).send({ message: 'Пользователь не найден' });
+      }
+      if (err.name === 'Error') {
+        res.status(ERROR_CODE).send({ message: 'Внутренняя ошибка сервера' });
+      }
+    });
 };
 
 // обновить данные пользователя
