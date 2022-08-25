@@ -40,7 +40,7 @@ module.exports.getUsers = (req, res) => {
 };
 
 // получить пользователя по ID
-module.exports.getUserById = (req, res) => {
+module.exports.getUserById = (req, res, next) => {
   const { userId } = req.params;
   User.findById(userId)
     .then((user) => {
@@ -57,6 +57,8 @@ module.exports.getUserById = (req, res) => {
       }
       if (err.name === 'Error') {
         res.status(ERROR_CODE).send({ message: 'Внутренняя ошибка сервера' });
+      } else {
+        next(err);
       }
     });
 };
