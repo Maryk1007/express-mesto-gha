@@ -66,8 +66,7 @@ module.exports.deleteCard = (req, res, next) => {
           res
             .status(200)
             .send({ data: card });
-        })
-        .catch(next);
+        });
     })
     .catch((err) => {
       if (err.name === 'ValidationError' || err.name === 'CastError') {

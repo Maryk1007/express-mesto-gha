@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const express = require('express');
-const NotFoundError = require('./errors/not-found-error');
+
+const NOT_FOUND_ERROR_CODE = 404;
 
 const { PORT = 3000 } = process.env;
 
@@ -22,8 +23,10 @@ app.use('/users', require('./routes/userRoutes'));
 app.use('/cards', require('./routes/cardRoutes'));
 
 // обработка несуществующих роутов
-app.use((req, res, next) => {
-  next(new NotFoundError('Страница не найдена'));
+app.use((req, res, err) => {
+  if (err.name === 'NotFoundError') {
+    res.status(NOT_FOUND_ERROR_CODE).send({ message: 'Страница не найдена' });
+  }
 });
 
 // подключение к mongo и серверу
