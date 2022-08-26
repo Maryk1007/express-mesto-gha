@@ -48,11 +48,6 @@ module.exports.deleteCard = (req, res, next) => {
   const userId = req.user._id;
   Card
     .findById(cardId)
-    .orFail((err) => {
-      if (err.name === 'NotFoundError') {
-        res.status(NOT_FOUND_ERROR_CODE).send({ message: 'Карточка с указанным id не найдена' });
-      }
-    })
     .then((card) => {
       if (String(userId) !== String(card.owner._id)) {
         res.status(VALIDATION_ERROR_CODE).send({ message: 'Переданы некорректные данные' });
@@ -67,6 +62,9 @@ module.exports.deleteCard = (req, res, next) => {
         .catch(next);
     })
     .catch((err) => {
+      if (err.name === 'NotFoundError') {
+        res.status(NOT_FOUND_ERROR_CODE).send({ message: 'Карточка с указанным id не найдена' });
+      }
       if (err.name === 'ValidationError' || err.name === 'CastError') {
         res.status(VALIDATION_ERROR_CODE).send({ message: 'Переданы некорректные данные при создании карточки' });
       }
@@ -87,12 +85,13 @@ module.exports.likeCard = (req, res) => {
       { new: true },
     )
     .then((card) => {
+      if (!card) {
+        res.status(NOT_FOUND_ERROR_CODE).send({ message: 'Карточка с указанным id не найдена' });
+        return;
+      }
       res.status(200).send({ data: card });
     })
     .catch((err) => {
-      if (err.name === 'NotFoundError') {
-        res.status(NOT_FOUND_ERROR_CODE).send({ message: 'Карточка с указанным id не найдена' });
-      }
       if (err.name === 'ValidationError' || err.name === 'CastError') {
         res.status(VALIDATION_ERROR_CODE).send({ message: 'Переданы некорректные данные' });
       }
