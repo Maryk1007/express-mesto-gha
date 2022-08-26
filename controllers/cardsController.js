@@ -121,7 +121,7 @@ module.exports.dislikeCard = (req, res) => {
         .send({ data: card });
     })
     .catch((err) => {
-      if (err.name === 'ValidationError') {
+      if (err.name === 'ValidationError' || err.name === 'CastError') {
         res.status(VALIDATION_ERROR_CODE).send({ message: 'Переданы некорректные данные при создании карточки' });
       }
       if (err.name === 'Error') {
