@@ -49,17 +49,25 @@ module.exports.deleteCard = (req, res, next) => {
   const userId = req.user._id;
   Card
     .findById(cardId)
-    .orFail(() => new NotFoundError('Карточка с указанным id не найдена'))
     .then((card) => {
-      if (String(userId) !== String(card.owner._id)) {
-        res.status(NOT_FOUND_ERROR_CODE).send({ message: 'Переданы некорректные данные' });
+      if (!card) {
+        res.status(404).send({ message: 'Нет карточки с таким id' });
+      } else if (card.owner.toString() !== req.user._id) {
+        res.status(401).send({ message: 'Невозможно удалить чужую карточку' });
+      } else {
+        Card.findByIdAndRemove(cardId)
+          .then(() => res.status(200).send({ data: card }))
+          .catch(() => res.status(ERROR_CODE).send({ message: 'Внутренняя ошибка сервера' }));
       }
-      return Card.findByIdAndDelete(req.params.id)
-        .orFail(() => new NotFoundError('Карточка с указанным id не найдена'))
-        .then(() => res.send({ data: card }))
-        .catch(next);
     })
-    .catch(next);
+    .catch((err) => {
+      if (err.name === 'ValidationError' || err.name === 'CastError') {
+        res.status(VALIDATION_ERROR_CODE).send({ message: 'Переданы некорректные данные при удалении карточки' });
+      }
+      if (err.name === 'Error') {
+        res.status(ERROR_CODE).send({ message: 'Внутренняя ошибка сервера' });
+      }
+    });
 };
 
 // поставить лайк карточке
