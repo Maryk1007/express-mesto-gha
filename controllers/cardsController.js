@@ -1,5 +1,6 @@
 /* eslint-disable no-unused-vars */
 const Card = require('../models/cardModel');
+const NotFoundError = require('../errors/not-found-error');
 
 const VALIDATION_ERROR_CODE = 400;
 const NOT_FOUND_ERROR_CODE = 404;
@@ -48,9 +49,12 @@ module.exports.deleteCard = (req, res, next) => {
   const userId = req.user._id;
   Card
     .findById(cardId)
+    .orFail(() => {
+      throw new NotFoundError('Карточка с указанным id не найдена');
+    })
     .then((card) => {
       if (String(userId) !== String(card.owner._id || !card)) {
-        res.status(NOT_FOUND_ERROR_CODE).send({ message: 'Карточка с указанным id не найдена' });
+        res.send({ message: 'Переданы некорректные данные' });
         return;
       }
       Card
