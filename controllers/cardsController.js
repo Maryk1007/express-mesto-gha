@@ -50,7 +50,8 @@ module.exports.deleteCard = (req, res, next) => {
     .findById(cardId)
     .then((card) => {
       if (String(userId) !== String(card.owner._id)) {
-        res.status(VALIDATION_ERROR_CODE).send({ message: 'Переданы некорректные данные' });
+        res.status(NOT_FOUND_ERROR_CODE).send({ message: 'Карточка с указанным id не найдена' });
+        return;
       }
       Card
         .findByIdAndRemove(cardId)
@@ -62,9 +63,6 @@ module.exports.deleteCard = (req, res, next) => {
         .catch(next);
     })
     .catch((err) => {
-      if (err.name === 'NotFoundError') {
-        res.status(NOT_FOUND_ERROR_CODE).send({ message: 'Карточка с указанным id не найдена' });
-      }
       if (err.name === 'ValidationError' || err.name === 'CastError') {
         res.status(VALIDATION_ERROR_CODE).send({ message: 'Переданы некорректные данные при создании карточки' });
       }

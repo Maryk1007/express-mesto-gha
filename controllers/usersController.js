@@ -1,6 +1,5 @@
 /* eslint-disable no-unused-vars */
 const User = require('../models/userModel');
-const CastError = require('../errors/cast-error');
 
 const VALIDATION_ERROR_CODE = 400;
 const NOT_FOUND_ERROR_CODE = 404;
