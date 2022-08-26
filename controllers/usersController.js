@@ -43,12 +43,11 @@ module.exports.getUsers = (req, res) => {
 module.exports.getUserById = (req, res) => {
   const { userId } = req.params;
   User.findById(userId)
-    .orFail((err) => {
-      if (err.name === 'NotFoundError') {
-        res.status(NOT_FOUND_ERROR_CODE).send({ message: 'Запрашиваемый пользователь не найден' });
-      }
-    })
     .then((user) => {
+      if (!user) {
+        res.status(NOT_FOUND_ERROR_CODE).send({ message: 'Запрашиваемый пользователь не найден' });
+        return;
+      }
       res.status(200).send({ data: user });
     })
     .catch((err) => {
