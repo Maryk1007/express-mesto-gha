@@ -22,7 +22,7 @@ module.exports.getCards = (req, res) => {
 };
 
 // создать карточку
-module.exports.createCard = async (req, res, next) => {
+module.exports.createCard = async (req, res) => {
   const { name, link } = req.body;
   const owner = req.user._id;
   Card
@@ -77,7 +77,7 @@ module.exports.deleteCard = (req, res, next) => {
 };
 
 // поставить лайк карточке
-module.exports.likeCard = (req, res, next) => {
+module.exports.likeCard = (req, res) => {
   const { cardId } = req.params;
   const userId = req.user._id;
   Card
@@ -87,9 +87,7 @@ module.exports.likeCard = (req, res, next) => {
       { new: true },
     )
     .then((card) => {
-      res
-        .status(200)
-        .send({ data: card });
+      res.status(200).send({ data: card });
     })
     .catch((err) => {
       if (err.name === 'ValidationError' || err.name === 'CastError') {
@@ -102,7 +100,7 @@ module.exports.likeCard = (req, res, next) => {
 };
 
 // удалить лайк у карточки
-module.exports.dislikeCard = (req, res, next) => {
+module.exports.dislikeCard = (req, res) => {
   const { cardId } = req.params;
   const userId = req.user._id;
   Card
