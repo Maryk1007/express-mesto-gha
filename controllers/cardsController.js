@@ -59,6 +59,9 @@ module.exports.deleteCard = (req, res, next) => {
       }
       Card
         .findByIdAndRemove(cardId)
+        .orFail(() => {
+          throw new NotFoundError('Карточка с указанным id не найдена');
+        })
         .then(() => {
           res
             .status(200)
