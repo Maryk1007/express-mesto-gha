@@ -90,11 +90,11 @@ module.exports.likeCard = (req, res) => {
       res.status(200).send({ data: card });
     })
     .catch((err) => {
-      if (err.name === 'ValidationError' || err.name === 'CastError') {
-        res.status(VALIDATION_ERROR_CODE).send({ message: 'Переданы некорректные данные' });
-      }
       if (err.name === 'NotFoundError') {
         res.status(NOT_FOUND_ERROR_CODE).send({ message: 'Карточка с указанным id не найдена' });
+      }
+      if (err.name === 'ValidationError' || err.name === 'CastError') {
+        res.status(VALIDATION_ERROR_CODE).send({ message: 'Переданы некорректные данные' });
       }
       if (err.name === 'Error') {
         res.status(ERROR_CODE).send({ message: 'Внутренняя ошибка сервера' });
