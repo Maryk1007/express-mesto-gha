@@ -10,13 +10,12 @@ module.exports.createUser = (req, res) => {
   const { name, about, avatar } = req.body;
   User.create({ name, about, avatar })
     .then((user) => {
-      res.status(201).send({ data: user });
+      res.send({ data: user });
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
         res.status(VALIDATION_ERROR_CODE).send({ message: 'Переданы некорректные данные при создании пользователя' });
-      }
-      if (err.name === 'Error') {
+      } else {
         res.status(ERROR_CODE).send({ message: 'Внутренняя ошибка сервера' });
       }
     });
@@ -29,12 +28,7 @@ module.exports.getUsers = (req, res) => {
       res.status(200).send({ data: users });
     })
     .catch((err) => {
-      if (err.name === 'NotFoundError') {
-        res.status(NOT_FOUND_ERROR_CODE).send({ message: 'Запрашиваемые пользователи не найдены' });
-      }
-      if (err.name === 'Error') {
-        res.status(ERROR_CODE).send({ message: 'Внутренняя ошибка сервера' });
-      }
+      res.status(ERROR_CODE).send({ message: 'Внутренняя ошибка сервера' });
     });
 };
 
@@ -47,14 +41,13 @@ module.exports.getUserById = (req, res) => {
         res.status(NOT_FOUND_ERROR_CODE).send({ message: 'Запрашиваемый пользователь не найден' });
         return;
       }
-      res.status(200).send({ data: user });
+      res.send({ data: user });
     })
     .catch((err) => {
-      if (err.name === 'Error') {
-        res.status(ERROR_CODE).send({ message: 'Внутренняя ошибка сервера' });
-      }
       if (err.name === 'CastError') {
         res.status(VALIDATION_ERROR_CODE).send({ message: 'Введены некорректные данные' });
+      } else {
+        res.status(ERROR_CODE).send({ message: 'Внутренняя ошибка сервера' });
       }
     });
 };
@@ -69,10 +62,8 @@ module.exports.updateUser = (req, res, next) => {
       { name, about },
       { new: true, runValidators: true },
     )
-    .orFail((err) => {
-      if (err.name === 'NotFoundError') {
-        res.status(NOT_FOUND_ERROR_CODE).send({ message: 'Запрашиваемый пользователь не найден' });
-      }
+    .orFail(() => {
+      throw new Error('NotFoundError');
     })
     .then((user) => {
       res
@@ -80,10 +71,11 @@ module.exports.updateUser = (req, res, next) => {
         .send({ user });
     })
     .catch((err) => {
-      if (err.name === 'ValidationError') {
+      if (err.name === 'NotFoundError') {
+        res.status(NOT_FOUND_ERROR_CODE).send({ message: 'Запрашиваемый пользователь не найден' });
+      } else if (err.name === 'ValidationError') {
         res.status(VALIDATION_ERROR_CODE).send({ message: 'Переданы некорректные данные при обновлении профиля' });
-      }
-      if (err.name === 'Error') {
+      } else {
         res.status(ERROR_CODE).send({ message: 'Внутренняя ошибка сервера' });
       }
     });
@@ -100,9 +92,7 @@ module.exports.updateAvatar = (req, res, next) => {
       { new: true, runValidators: true },
     )
     .orFail((err) => {
-      if (err.name === 'NotFoundError') {
-        res.status(NOT_FOUND_ERROR_CODE).send({ message: 'Запрашиваемый пользователь не найден' });
-      }
+      throw new Error('NotFoundError');
     })
     .then((user) => {
       res
@@ -110,10 +100,11 @@ module.exports.updateAvatar = (req, res, next) => {
         .send({ user });
     })
     .catch((err) => {
-      if (err.name === 'ValidationError') {
+      if (err.name === 'NotFoundError') {
+        res.status(NOT_FOUND_ERROR_CODE).send({ message: 'Запрашиваемый пользователь не найден' });
+      } else if (err.name === 'ValidationError') {
         res.status(VALIDATION_ERROR_CODE).send({ message: 'Переданы некорректные данные при обновлении профиля' });
-      }
-      if (err.name === 'Error') {
+      } else {
         res.status(ERROR_CODE).send({ message: 'Внутренняя ошибка сервера' });
       }
     });
