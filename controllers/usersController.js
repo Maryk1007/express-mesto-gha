@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 const User = require('../models/userModel');
 
 const VALIDATION_ERROR_CODE = 400;
@@ -27,7 +26,7 @@ module.exports.getUsers = (req, res) => {
     .then((users) => {
       res.status(200).send({ data: users });
     })
-    .catch((err) => {
+    .catch(() => {
       res.status(ERROR_CODE).send({ message: 'Внутренняя ошибка сервера' });
     });
 };
@@ -53,7 +52,7 @@ module.exports.getUserById = (req, res) => {
 };
 
 // обновить данные пользователя
-module.exports.updateUser = (req, res, next) => {
+module.exports.updateUser = (req, res) => {
   const { name, about } = req.body;
   const userId = req.user._id;
   User
@@ -71,7 +70,7 @@ module.exports.updateUser = (req, res, next) => {
         .send({ user });
     })
     .catch((err) => {
-      if (err.name === 'NotFoundError') {
+      if (err.name === 'NotFound') {
         res.status(NOT_FOUND_ERROR_CODE).send({ message: 'Запрашиваемый пользователь не найден' });
       } else if (err.name === 'ValidationError') {
         res.status(VALIDATION_ERROR_CODE).send({ message: 'Переданы некорректные данные при обновлении профиля' });
@@ -82,7 +81,7 @@ module.exports.updateUser = (req, res, next) => {
 };
 
 // обновить аватар пользователя
-module.exports.updateAvatar = (req, res, next) => {
+module.exports.updateAvatar = (req, res) => {
   const { avatar } = req.body;
   const userId = req.user._id;
   User
@@ -91,8 +90,8 @@ module.exports.updateAvatar = (req, res, next) => {
       { avatar },
       { new: true, runValidators: true },
     )
-    .orFail((err) => {
-      throw new Error('NotFoundError');
+    .orFail(() => {
+      throw new Error('NotFound');
     })
     .then((user) => {
       res

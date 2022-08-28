@@ -1,6 +1,4 @@
-/* eslint-disable no-unused-vars */
 const Card = require('../models/cardModel');
-const NotFoundError = require('../errors/not-found-error');
 
 const VALIDATION_ERROR_CODE = 400;
 const NOT_FOUND_ERROR_CODE = 404;
@@ -15,7 +13,7 @@ module.exports.getCards = (req, res) => {
         .status(200)
         .send({ data: cards });
     })
-    .catch((err) => {
+    .catch(() => {
       res.status(ERROR_CODE).send({ message: 'Внутренняя ошибка сервера' });
     });
 };
@@ -41,9 +39,9 @@ module.exports.createCard = async (req, res) => {
 };
 
 // удалить карточку по ID
-module.exports.deleteCard = (req, res, next) => {
+module.exports.deleteCard = (req, res) => {
   const { cardId } = req.params;
-  const userId = req.user._id;
+  // const userId = req.user._id;
   Card
     .findById(cardId)
     .then((card) => {
