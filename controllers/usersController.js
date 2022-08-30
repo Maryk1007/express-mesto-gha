@@ -9,7 +9,7 @@ const { generateToken } = require('../helpers/jwt');
 const SALT_ROUNDS = 10;
 
 // добавить пользователя
-module.exports.createUser = (req, res, next) => {
+module.exports.createUser = async (req, res, next) => {
   const {
     name,
     about,
@@ -17,9 +17,13 @@ module.exports.createUser = (req, res, next) => {
     email,
     password,
   } = req.body;
-  return bcrypt
-    .hash(password, SALT_ROUNDS)
-    .then((hash) => (
+  try {
+    if (!email || !password) {
+      throw new CastError('Укажите email или пароль');
+    }
+    const hash = await bcrypt
+      .hash(password, SALT_ROUNDS);
+    const user = await (
       User
         .create({
           email,
@@ -28,26 +32,24 @@ module.exports.createUser = (req, res, next) => {
           about,
           avatar,
         })
-    ))
-    .then((user) => {
-      res.send({
-        user: {
-          email: user.email,
-          name: user.name,
-          about: user.about,
-          avatar: user.avatar,
-        },
-      });
-    })
-    .catch((err) => {
-      if (err.name === 'ValidationError' || err.name === 'CastError') {
-        next(new CastError('Введены некорректные данные пользователя'));
-      } else if (err.code === 11000) {
-        next(new ConflictError('Пользователь с указанным email уже существует'));
-      } else {
-        next(err);
-      }
+    );
+    res.send({
+      user: {
+        email: user.email,
+        name: user.name,
+        about: user.about,
+        avatar: user.avatar,
+      },
     });
+  } catch (err) {
+    if (err.name === 'ValidationError' || err.name === 'CastError') {
+      next(new CastError('Введены некорректные данные пользователя'));
+    } else if (err.code === 11000) {
+      next(new ConflictError('Пользователь с указанным email уже существует'));
+    } else {
+      next(err);
+    }
+  }
 };
 
 // аутентификация
