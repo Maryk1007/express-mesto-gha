@@ -3,7 +3,7 @@ const express = require('express');
 const { errors } = require('celebrate');
 const { createUser, login } = require('./controllers/usersController');
 const { validateCreateUser, validateLogin } = require('./middlewares/validation');
-const auth = require('./middlewares/auth');
+// const auth = require('./middlewares/auth');
 const NotFoundError = require('./errors/not-found-error');
 const error = require('./middlewares/error');
 
@@ -16,8 +16,6 @@ app.use(express.urlencoded({ extended: true }));
 
 app.post('/signin', validateLogin, login);
 app.post('/signup', validateCreateUser, createUser);
-
-app.use(auth);
 
 // роутеры пользователей и карточек
 app.use('/users', require('./routes/userRoutes'));
