@@ -31,6 +31,9 @@ module.exports.createUser = (req, res, next) => {
           avatar,
         })
     ))
+    .orFail(() => {
+      throw new Error(ConflictError);
+    })
     .then((user) => {
       res.send({
         user: {
