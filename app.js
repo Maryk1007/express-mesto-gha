@@ -17,9 +17,11 @@ app.use(express.urlencoded({ extended: true }));
 app.post('/signin', validateLogin, login);
 app.post('/signup', validateCreateUser, createUser);
 
+app.use(auth);
+
 // роутеры пользователей и карточек
-app.use('/users', auth, require('./routes/userRoutes'));
-app.use('/cards', auth, require('./routes/cardRoutes'));
+app.use('/users', require('./routes/userRoutes'));
+app.use('/cards', require('./routes/cardRoutes'));
 
 // обработка несуществующих роутов
 app.use((req, res, next) => {
