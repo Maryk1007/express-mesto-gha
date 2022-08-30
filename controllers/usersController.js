@@ -6,8 +6,6 @@ const NotFoundError = require('../errors/not-found-error');
 const UnauthorizedError = require('../errors/unauthorized-error');
 const { generateToken } = require('../helpers/jwt');
 
-const ERROR_CODE = 500;
-
 const SALT_ROUNDS = 10;
 
 // добавить пользователя
@@ -95,14 +93,12 @@ module.exports.login = (req, res, next) => {
 };
 
 // получить всех пользователей
-module.exports.getUsers = (req, res) => {
+module.exports.getUsers = (req, res, next) => {
   User.find({})
     .then((users) => {
       res.status(200).send({ data: users });
     })
-    .catch(() => {
-      res.status(ERROR_CODE).send({ message: 'Внутренняя ошибка сервера' });
-    });
+    .catch(next);
 };
 
 // получить текущего пользователя
@@ -128,7 +124,7 @@ module.exports.getMe = (req, res, next) => {
 };
 
 // получить пользователя по ID
-module.exports.getUserById = (req, res) => {
+module.exports.getUserById = (req, res, next) => {
   const { userId } = req.params;
   User.findById(userId)
     .then((user) => {
@@ -140,15 +136,15 @@ module.exports.getUserById = (req, res) => {
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(CastError).send({ message: 'Введены некорректные данные' });
+        next(new CastError('Введен некорректный id пользователя'));
       } else {
-        res.status(ERROR_CODE).send({ message: 'Внутренняя ошибка сервера' });
+        next(err);
       }
     });
 };
 
 // обновить данные пользователя
-module.exports.updateUser = (req, res) => {
+module.exports.updateUser = (req, res, next) => {
   const { name, about } = req.body;
   const userId = req.user._id;
   User
@@ -168,16 +164,16 @@ module.exports.updateUser = (req, res) => {
     .catch((err) => {
       if (err.message === 'NotFoundError') {
         res.status(NotFoundError).send({ message: 'Запрашиваемый пользователь не найден' });
-      } else if (err.name === 'ValidationError') {
-        res.status(CastError).send({ message: 'Переданы некорректные данные при обновлении профиля' });
+      } else if (err.name === 'ValidationError' || err.name === 'CastError') {
+        next(new CastError('Введены некорректные данные пользователя'));
       } else {
-        res.status(ERROR_CODE).send({ message: 'Внутренняя ошибка сервера' });
+        next(err);
       }
     });
 };
 
 // обновить аватар пользователя
-module.exports.updateAvatar = (req, res) => {
+module.exports.updateAvatar = (req, res, next) => {
   const { avatar } = req.body;
   const userId = req.user._id;
   User
@@ -197,10 +193,10 @@ module.exports.updateAvatar = (req, res) => {
     .catch((err) => {
       if (err.message === 'NotFoundError') {
         res.status(NotFoundError).send({ message: 'Запрашиваемый пользователь не найден' });
-      } else if (err.name === 'ValidationError') {
-        res.status(CastError).send({ message: 'Переданы некорректные данные при обновлении профиля' });
+      } else if (err.name === 'ValidationError' || err.name === 'CastError') {
+        next(new CastError('Введены некорректные данные пользователя'));
       } else {
-        res.status(ERROR_CODE).send({ message: 'Внутренняя ошибка сервера' });
+        next(err);
       }
     });
 };
