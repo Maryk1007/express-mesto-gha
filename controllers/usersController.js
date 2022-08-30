@@ -9,7 +9,6 @@ const { generateToken } = require('../helpers/jwt');
 const ERROR_CODE = 500;
 
 const SALT_ROUNDS = 10;
-const MONGO_DUPLICATE_ERROR_CODE = 11000;
 
 // добавить пользователя
 module.exports.createUser = (req, res, next) => {
@@ -43,10 +42,11 @@ module.exports.createUser = (req, res, next) => {
       });
     })
     .catch((err) => {
+      if (err.code === 11000) {
+        next(new ConflictError('Пользователь с указанным email уже существует'));
+      }
       if (err.name === 'ValidationError') {
         res.status(CastError).send({ message: 'Переданы некорректные данные при создании пользователя' });
-      } else if (err.name === MONGO_DUPLICATE_ERROR_CODE) {
-        next(new ConflictError('Пользователь с указанным email уже существует'));
       } else {
         res.status(ERROR_CODE).send({ message: 'Внутренняя ошибка сервера' });
       }
