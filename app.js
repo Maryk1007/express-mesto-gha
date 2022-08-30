@@ -27,6 +27,15 @@ app.use((req, res, next) => {
 
 app.use(errors());
 
+// подключение к mongo и серверу
+async function main() {
+  await mongoose.connect('mongodb://localhost:27017/mestodb');
+  app.listen(PORT, () => {
+    // eslint-disable-next-line no-console
+    console.log(`Connect ${PORT}`);
+  });
+}
+
 // eslint-disable-next-line no-unused-vars
 app.use((err, req, res, next) => {
   const { statusCode = 500, message } = err;
@@ -37,14 +46,5 @@ app.use((err, req, res, next) => {
       message: statusCode === 500 ? 'На сервере произошла ошибка' : message,
     });
 });
-
-// подключение к mongo и серверу
-async function main() {
-  await mongoose.connect('mongodb://localhost:27017/mestodb');
-  app.listen(PORT, () => {
-    // eslint-disable-next-line no-console
-    console.log(`Connect ${PORT}`);
-  });
-}
 
 main();
