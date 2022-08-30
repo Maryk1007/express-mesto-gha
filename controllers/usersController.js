@@ -45,7 +45,7 @@ module.exports.createUser = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'ValidationError') {
         res.status(CastError).send({ message: 'Переданы некорректные данные при создании пользователя' });
-      } else if (err.code === MONGO_DUPLICATE_ERROR_CODE) {
+      } else if (err.name === MONGO_DUPLICATE_ERROR_CODE) {
         next(new ConflictError('Пользователь с указанным email уже существует'));
       } else {
         res.status(ERROR_CODE).send({ message: 'Внутренняя ошибка сервера' });
