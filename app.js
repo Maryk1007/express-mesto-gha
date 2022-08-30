@@ -5,6 +5,7 @@ const { createUser, login } = require('./controllers/usersController');
 const { validateCreateUser, validateLogin } = require('./middlewares/validation');
 const auth = require('./middlewares/auth');
 const NotFoundError = require('./errors/not-found-error');
+const error = require('./middlewares/error');
 
 const { PORT = 3000 } = process.env;
 
@@ -27,6 +28,8 @@ app.use((req, res, next) => {
 
 app.use(errors());
 
+app.use(error);
+
 // подключение к mongo и серверу
 async function main() {
   await mongoose.connect('mongodb://localhost:27017/mestodb');
@@ -35,16 +38,5 @@ async function main() {
     console.log(`Connect ${PORT}`);
   });
 }
-
-// eslint-disable-next-line no-unused-vars
-app.use((err, req, res, next) => {
-  const { statusCode = 500, message } = err;
-
-  res
-    .status(statusCode)
-    .send({
-      message: statusCode === 500 ? 'На сервере произошла ошибка' : message,
-    });
-});
 
 main();
