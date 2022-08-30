@@ -57,7 +57,7 @@ module.exports.createUser = (req, res, next) => {
 module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
   if (!email || !password) {
-    next(new UnauthorizedError('Укажите email или пароль'));
+    throw new UnauthorizedError('Укажите email или пароль');
   }
   return User
     .findOne({ email })
