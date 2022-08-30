@@ -31,9 +31,6 @@ module.exports.createUser = (req, res, next) => {
           avatar,
         })
     ))
-    .orFail(() => {
-      throw new Error(ConflictError);
-    })
     .then((user) => {
       res.send({
         user: {
@@ -45,13 +42,12 @@ module.exports.createUser = (req, res, next) => {
       });
     })
     .catch((err) => {
-      if (err.code === 11000) {
+      if (err.name === 'ValidationError' || err.name === 'CastError') {
+        next(new CastError('Введены некорректные данные пользователя'));
+      } else if (err.code === 11000) {
         next(new ConflictError('Пользователь с указанным email уже существует'));
-      }
-      if (err.name === 'ValidationError') {
-        res.status(CastError).send({ message: 'Переданы некорректные данные при создании пользователя' });
       } else {
-        res.status(ERROR_CODE).send({ message: 'Внутренняя ошибка сервера' });
+        next(err);
       }
     });
 };

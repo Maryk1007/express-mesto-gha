@@ -16,14 +16,6 @@ app.use(express.urlencoded({ extended: true }));
 app.post('/signin', validateLogin, login);
 app.post('/signup', validateCreateUser, createUser);
 
-// app.use((req, res, next) => {
-//   req.user = {
-//     _id: '630722042be5fa6d495e5442',
-//   };
-
-//   next();
-// });
-
 // роутеры пользователей и карточек
 app.use('/users', auth, require('./routes/userRoutes'));
 app.use('/cards', auth, require('./routes/cardRoutes'));
@@ -34,6 +26,16 @@ app.use((req, res, next) => {
 });
 
 app.use(errors());
+
+app.use((err, req, res, next) => {
+  const { statusCode = 500, message } = err;
+
+  res
+    .status(statusCode)
+    .send({
+      message: statusCode === 500 ? 'На сервере произошла ошибка' : message,
+    });
+});
 
 // подключение к mongo и серверу
 async function main() {
