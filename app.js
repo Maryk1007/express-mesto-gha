@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const express = require('express');
+const { errors } = require('celebrate');
 const { createUser, login } = require('./controllers/usersController');
 const { validateCreateUser, validateLogin } = require('./middlewares/validation');
 const auth = require('./middlewares/auth');
@@ -31,6 +32,8 @@ app.use('/cards', auth, require('./routes/cardRoutes'));
 app.use((req, res, next) => {
   next(res.status(NotFoundError).send({ message: 'Страница не найдена' }));
 });
+
+app.use(errors());
 
 // подключение к mongo и серверу
 async function main() {
