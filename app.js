@@ -1,7 +1,9 @@
 const mongoose = require('mongoose');
 const express = require('express');
-
-const NOT_FOUND_ERROR_CODE = 404;
+const { createUser, login } = require('./controllers/usersController');
+const { validateCreateUser, validateLogin } = require('./middlewares/validation');
+const auth = require('./middlewares/auth');
+const NotFoundError = require('./errors/not-found-error');
 
 const { PORT = 3000 } = process.env;
 
@@ -10,21 +12,24 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.use((req, res, next) => {
-  req.user = {
-    _id: '630722042be5fa6d495e5442',
-  };
+app.post('/signin', validateLogin, login);
+app.post('/signup', validateCreateUser, createUser);
 
-  next();
-});
+// app.use((req, res, next) => {
+//   req.user = {
+//     _id: '630722042be5fa6d495e5442',
+//   };
+
+//   next();
+// });
 
 // роутеры пользователей и карточек
-app.use('/users', require('./routes/userRoutes'));
-app.use('/cards', require('./routes/cardRoutes'));
+app.use('/users', auth, require('./routes/userRoutes'));
+app.use('/cards', auth, require('./routes/cardRoutes'));
 
 // обработка несуществующих роутов
 app.use((req, res, next) => {
-  next(res.status(NOT_FOUND_ERROR_CODE).send({ message: 'Страница не найдена' }));
+  next(res.status(NotFoundError).send({ message: 'Страница не найдена' }));
 });
 
 // подключение к mongo и серверу
