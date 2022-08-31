@@ -41,6 +41,7 @@ module.exports.createUser = async (req, res, next) => {
         avatar: user.avatar,
       },
     });
+    next();
   } catch (err) {
     if (err.name === 'ValidationError' || err.name === 'CastError') {
       next(new CastError('Введены некорректные данные пользователя'));
@@ -82,6 +83,7 @@ module.exports.login = (req, res, next) => {
     })
     .then((token) => {
       res.send({ token });
+      next();
     })
     .catch((err) => {
       if (err.statusCode === 'CastError') {
@@ -99,6 +101,7 @@ module.exports.getUsers = (req, res, next) => {
   User.find({})
     .then((users) => {
       res.status(200).send({ data: users });
+      next();
     })
     .catch(next);
 };
@@ -112,9 +115,8 @@ module.exports.getMe = (req, res, next) => {
       if (!user) {
         throw new NotFoundError('Пользователь по указанному id не найден');
       }
-      res
-        .status(200)
-        .send({ data: user });
+      res.status(200).send({ data: user });
+      next();
     })
     .catch((err) => {
       if (err.name === 'CastError') {
@@ -135,6 +137,7 @@ module.exports.getUserById = (req, res, next) => {
         return;
       }
       res.send({ data: user });
+      next();
     })
     .catch((err) => {
       if (err.name === 'CastError') {
@@ -159,9 +162,8 @@ module.exports.updateUser = (req, res, next) => {
       throw new Error('NotFoundError');
     })
     .then((user) => {
-      res
-        .status(200)
-        .send({ user });
+      res.status(200).send({ user });
+      next();
     })
     .catch((err) => {
       if (err.message === 'NotFoundError') {
@@ -188,9 +190,8 @@ module.exports.updateAvatar = (req, res, next) => {
       throw new Error('NotFoundError');
     })
     .then((user) => {
-      res
-        .status(200)
-        .send({ user });
+      res.status(200).send({ user });
+      next();
     })
     .catch((err) => {
       if (err.message === 'NotFoundError') {
