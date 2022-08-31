@@ -107,7 +107,7 @@ module.exports.getMe = (req, res, next) => {
     .findById(userId)
     .then((user) => {
       if (!user) {
-        res.status(NotFoundError).send({ message: 'Пользователь по указанному id не найден' });
+        throw new NotFoundError('Пользователь по указанному id не найден');
       }
       res.status(200).send({ data: user });
     })
@@ -126,7 +126,7 @@ module.exports.getUserById = (req, res, next) => {
   User.findById(userId)
     .then((user) => {
       if (!user) {
-        res.status(NotFoundError).send({ message: 'Запрашиваемый пользователь не найден' });
+        throw new NotFoundError('Пользователь по указанному id не найден');
       }
       res.send({ data: user });
     })
