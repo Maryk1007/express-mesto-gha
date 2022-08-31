@@ -1,8 +1,11 @@
-GET http://localhost:3000/
+GET http://localhost:3000/users/me
 
 ###
 
-POST http://localhost:3000/
+POST http://localhost:3000/signup
 Content-Type: application/json
 
-{"foo": "bar"}
+{
+  "email": "marysberbank@icloud.com",
+  "password": "1qaz2wsx"
+}

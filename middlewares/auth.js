@@ -1,4 +1,4 @@
-const jwt = require('../helpers/jwt');
+const jwt = require('jsonwebtoken');
 const { SECRET_KEY } = require('../helpers/jwt');
 const User = require('../models/userModel');
 const UnauthorizedError = require('../errors/unauthorized-error');
