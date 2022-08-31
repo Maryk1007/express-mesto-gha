@@ -21,8 +21,8 @@ app.post('/signup', validateCreateUser, createUser);
 app.use('/users', auth, require('./routes/userRoutes'));
 app.use('/cards', auth, require('./routes/cardRoutes'));
 
-app.use((req, res) => {
-  res.status(NotFoundError).send({ message: 'СТраница не найдена' });
+app.use((req, res, next) => {
+  next(new NotFoundError('Страница не найдена'));
 });
 
 app.use(errors());
