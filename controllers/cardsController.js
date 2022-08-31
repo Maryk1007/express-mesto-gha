@@ -1,5 +1,5 @@
 const Card = require('../models/cardModel');
-const ForbiddenError = require('../errors/unauthorized-error');
+const ForbiddenError = require('../errors/forbidden-error');
 const CastError = require('../errors/cast-error');
 const NotFoundError = require('../errors/not-found-error');
 
