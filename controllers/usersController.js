@@ -41,7 +41,6 @@ module.exports.createUser = async (req, res, next) => {
         avatar: user.avatar,
       },
     });
-    next();
   } catch (err) {
     if (err.name === 'ValidationError' || err.name === 'CastError') {
       next(new CastError('Введены некорректные данные пользователя'));
@@ -57,16 +56,15 @@ module.exports.createUser = async (req, res, next) => {
 module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
   if (!email || !password) {
-    throw new UnauthorizedError('Укажите email или пароль');
+    res.status(401).send({ message: 'Укажите email или пароль' });
+    return;
   }
-  return User
+  User
     .findOne({ email })
     .select('+password')
     .then((user) => {
       if (!user) {
-        const err = new UnauthorizedError('Некорректная почта или пароль');
-        err.statusCode = 'UnauthorizedError';
-        throw err;
+        throw new UnauthorizedError('Некорректная почта или пароль');
       }
       return Promise.all([
         user,
@@ -75,15 +73,12 @@ module.exports.login = (req, res, next) => {
     })
     .then(([user, isPasswordCorrect]) => {
       if (!isPasswordCorrect) {
-        const err = new UnauthorizedError('Некорректная почта или пароль');
-        err.statusCode = 'UnauthorizedError';
-        throw err;
+        throw new UnauthorizedError('Некорректная почта или пароль');
       }
       return generateToken({ email: user.email });
     })
     .then((token) => {
       res.send({ token });
-      next();
     })
     .catch((err) => {
       if (err.statusCode === 'CastError') {
@@ -101,7 +96,6 @@ module.exports.getUsers = (req, res, next) => {
   User.find({})
     .then((users) => {
       res.status(200).send({ data: users });
-      next();
     })
     .catch(next);
 };
@@ -113,10 +107,10 @@ module.exports.getMe = (req, res, next) => {
     .findById(userId)
     .then((user) => {
       if (!user) {
-        throw new NotFoundError('Пользователь по указанному id не найден');
+        res.status(NotFoundError).send({ message: 'Пользователь по указанному id не найден' });
+        return;
       }
       res.status(200).send({ data: user });
-      next();
     })
     .catch((err) => {
       if (err.name === 'CastError') {
@@ -137,7 +131,6 @@ module.exports.getUserById = (req, res, next) => {
         return;
       }
       res.send({ data: user });
-      next();
     })
     .catch((err) => {
       if (err.name === 'CastError') {
@@ -162,8 +155,7 @@ module.exports.updateUser = (req, res, next) => {
       throw new Error('NotFoundError');
     })
     .then((user) => {
-      res.status(200).send({ user });
-      next();
+      res.send({ user });
     })
     .catch((err) => {
       if (err.message === 'NotFoundError') {
@@ -190,8 +182,7 @@ module.exports.updateAvatar = (req, res, next) => {
       throw new Error('NotFoundError');
     })
     .then((user) => {
-      res.status(200).send({ user });
-      next();
+      res.send({ user });
     })
     .catch((err) => {
       if (err.message === 'NotFoundError') {

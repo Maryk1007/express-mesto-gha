@@ -8,9 +8,7 @@ module.exports.getCards = (req, res, next) => {
   Card
     .find({})
     .then((cards) => {
-      res
-        .status(200)
-        .send({ data: cards });
+      res.send({ data: cards });
     })
     .catch(next);
 };
@@ -22,9 +20,7 @@ module.exports.createCard = async (req, res, next) => {
   Card
     .create({ name, link, owner })
     .then((card) => {
-      res
-        .status(201)
-        .send({ data: card });
+      res.send({ data: card });
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
@@ -51,9 +47,7 @@ module.exports.deleteCard = (req, res, next) => {
       Card
         .findByIdAndRemove(cardId)
         .then(() => {
-          res
-            .status(200)
-            .send({ data: card });
+          res.send({ data: card });
         })
         .catch(next);
     })
@@ -80,7 +74,7 @@ module.exports.likeCard = (req, res, next) => {
       throw new NotFoundError('Карточка с указанным id не найдена');
     })
     .then((card) => {
-      res.status(200).send({ data: card });
+      res.send({ data: card });
     })
     .catch((err) => {
       if (err.name === 'CastError') {
@@ -105,7 +99,7 @@ module.exports.dislikeCard = (req, res, next) => {
       throw new NotFoundError('Карточка с указанным id не найдена');
     })
     .then((card) => {
-      res.status(200).send({ data: card });
+      res.send({ data: card });
     })
     .catch((err) => {
       if (err.name === 'CastError') {
