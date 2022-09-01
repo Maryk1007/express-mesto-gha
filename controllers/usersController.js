@@ -18,9 +18,6 @@ module.exports.createUser = async (req, res, next) => {
     password,
   } = req.body;
   try {
-    // if (!email || !password) {
-    //   throw new CastError('Укажите email или пароль');
-    // }
     const hash = await bcrypt
       .hash(password, SALT_ROUNDS);
     const user = await (
@@ -55,10 +52,6 @@ module.exports.createUser = async (req, res, next) => {
 // аутентификация
 module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
-  // if (!email || !password) {
-  //   res.status(401).send({ message: 'Укажите email или пароль' });
-  //   return;
-  // }
   User
     .findOne({ email })
     .select('+password')
