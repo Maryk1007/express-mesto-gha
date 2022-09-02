@@ -3,7 +3,7 @@ const express = require('express');
 const { errors } = require('celebrate');
 const { createUser, login } = require('./controllers/usersController');
 const { validateCreateUser, validateLogin } = require('./middlewares/validation');
-const auth = require('./middlewares/auth');
+const { auth } = require('./middlewares/auth');
 const NotFoundError = require('./errors/not-found-error');
 const error = require('./middlewares/error');
 
