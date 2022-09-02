@@ -1,10 +1,9 @@
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 const User = require('../models/userModel');
 const CastError = require('../errors/cast-error');
 const ConflictError = require('../errors/conflict-error');
 const NotFoundError = require('../errors/not-found-error');
-const UnauthorizedError = require('../errors/unauthorized-error');
-const { generateToken } = require('../helpers/jwt');
 
 const SALT_ROUNDS = 10;
 
@@ -23,19 +22,20 @@ module.exports.createUser = async (req, res, next) => {
     const user = await (
       User
         .create({
-          email,
-          password: hash,
           name,
           about,
           avatar,
+          email,
+          password: hash,
         })
     );
     res.send({
       user: {
-        email: user.email,
         name: user.name,
         about: user.about,
         avatar: user.avatar,
+        email: user.email,
+        _id: user._id,
       },
     });
   } catch (err) {
@@ -52,35 +52,17 @@ module.exports.createUser = async (req, res, next) => {
 // аутентификация
 module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
-  User
-    .findOne({ email })
-    .select('+password')
+  User.findUserByCredentials({ email, password })
     .then((user) => {
-      if (!user) {
-        throw new UnauthorizedError('Некорректная почта или пароль');
-      }
-      return Promise.all([
-        user,
-        bcrypt.compare(password, user.password),
-      ]);
-    })
-    .then(([user, isPasswordCorrect]) => {
-      if (!isPasswordCorrect) {
-        throw new UnauthorizedError('Некорректная почта или пароль');
-      }
-      return generateToken({ email: user.email });
-    })
-    .then((token) => {
+      const token = jwt.sign(
+        { _id: user._id },
+        'super-strong-secret',
+        { expiresIn: '7d' },
+      );
       res.send({ token });
     })
     .catch((err) => {
-      if (err.statusCode === 'CastError') {
-        next(new CastError('Введены некорректные данные пользователя'));
-      } else if (err.statusCode === 'UnauthorizedError') {
-        next(new UnauthorizedError('Некорректная почта или пароль'));
-      } else {
-        next(err);
-      }
+      next(err);
     });
 };
 
