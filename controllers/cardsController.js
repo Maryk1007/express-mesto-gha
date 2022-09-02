@@ -28,18 +28,24 @@ module.exports.createCard = (req, res, next) => {
 };
 
 module.exports.deleteCard = (req, res, next) => {
-  const { _id } = req.params;
-  Card.findById(_id)
-    .then((card) => {
-      if (card === null) {
-        throw new NotFoundError('Карточка c указанным id не найдена');
-      } else if (!card.owner.equals(req.user._id)) {
-        throw new ForbiddenError('Попытка удалить чужую карточку');
-      }
-      return card;
+  const { cardId } = req.params;
+  const userId = req.user._id;
+  Card
+    .findById(cardId)
+    .orFail(() => {
+      throw new NotFoundError('Карточка с указанным id не найдена');
     })
-    .then((card) => card.delete())
-    .then((data) => res.send(data))
+    .then((card) => {
+      if (String(userId) !== String(card.owner._id)) {
+        throw new ForbiddenError('Невозможно удалить чужую карточку');
+      }
+      Card
+        .findByIdAndRemove(cardId)
+        .then(() => {
+          res.send({ data: card });
+        })
+        .catch(next);
+    })
     .catch((err) => {
       if (err.name === 'CastError') {
         next(new CastError('Введены некорректные данные'));
