@@ -1,5 +1,5 @@
 const { celebrate, Joi } = require('celebrate');
-const regexURL = require('../helpers/constants');
+const { regexURL } = require('../helpers/constants');
 
 // валидация при добавлении нового пользователя
 const validateCreateUser = celebrate({
