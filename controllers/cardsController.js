@@ -3,6 +3,7 @@ const ForbiddenError = require('../errors/forbidden-error');
 const CastError = require('../errors/cast-error');
 const NotFoundError = require('../errors/not-found-error');
 
+// получить все карточки
 module.exports.getCards = (req, res, next) => {
   Card.find({})
     .then((cards) => {
@@ -11,6 +12,7 @@ module.exports.getCards = (req, res, next) => {
     .catch(next);
 };
 
+// создать карточку
 module.exports.createCard = (req, res, next) => {
   const { name, link } = req.body;
   const ownerId = req.user._id;
@@ -27,6 +29,7 @@ module.exports.createCard = (req, res, next) => {
     });
 };
 
+// удалить карточку по ID
 module.exports.deleteCard = (req, res, next) => {
   const { cardId } = req.params;
   const userId = req.user._id;
@@ -55,6 +58,7 @@ module.exports.deleteCard = (req, res, next) => {
     });
 };
 
+// поставить лайк карточке
 module.exports.likeCard = (req, res, next) => {
   const { cardId } = req.params;
   const userId = req.user._id;
@@ -79,6 +83,7 @@ module.exports.likeCard = (req, res, next) => {
     });
 };
 
+// удалить лайк у карточки
 module.exports.dislikeCard = (req, res, next) => {
   const { cardId } = req.params;
   const userId = req.user._id;

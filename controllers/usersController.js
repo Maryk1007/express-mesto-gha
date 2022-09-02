@@ -8,6 +8,7 @@ const { SECRET_KEY } = require('../helpers/constants');
 
 const SALT_ROUNDS = 10;
 
+// добавить пользователя
 module.exports.createUser = (req, res, next) => {
   const {
     name,
@@ -40,6 +41,7 @@ module.exports.createUser = (req, res, next) => {
     });
 };
 
+// аутентификация
 module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
   User.findUserByCredentials({ email, password })
@@ -56,6 +58,7 @@ module.exports.login = (req, res, next) => {
     });
 };
 
+// получить всех пользователей
 module.exports.getUsers = (req, res, next) => {
   User.find({})
     .then((users) => {
@@ -64,6 +67,7 @@ module.exports.getUsers = (req, res, next) => {
     .catch(next);
 };
 
+// получить текущего пользователя
 module.exports.getMe = (req, res, next) => {
   const { _id } = req.user;
   User.findById(_id)
@@ -83,6 +87,7 @@ module.exports.getMe = (req, res, next) => {
     });
 };
 
+// получить пользователя по ID
 module.exports.getUserById = (req, res, next) => {
   const { userId } = req.params;
   User.findById(userId)
@@ -102,6 +107,7 @@ module.exports.getUserById = (req, res, next) => {
     });
 };
 
+// обновить данные пользователя
 module.exports.updateUser = (req, res, next) => {
   const { name, about } = req.body;
   const userId = req.user._id;
@@ -124,6 +130,7 @@ module.exports.updateUser = (req, res, next) => {
     });
 };
 
+// обновить аватар пользователя
 module.exports.updateAvatar = (req, res, next) => {
   const { avatar } = req.body;
   const userId = req.user._id;
