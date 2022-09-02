@@ -8,7 +8,7 @@ const NotFoundError = require('../errors/not-found-error');
 const SALT_ROUNDS = 10;
 
 // добавить пользователя
-module.exports.createUser = async (req, res, next) => {
+module.exports.createUser = (req, res, next) => {
   const {
     name,
     about,
@@ -16,37 +16,28 @@ module.exports.createUser = async (req, res, next) => {
     email,
     password,
   } = req.body;
-  try {
-    const hash = await bcrypt
-      .hash(password, SALT_ROUNDS);
-    const user = await (
-      User
-        .create({
-          name,
-          about,
-          avatar,
-          email,
-          password: hash,
-        })
-    );
-    res.send({
-      user: {
-        name: user.name,
-        about: user.about,
-        avatar: user.avatar,
-        email: user.email,
-        _id: user._id,
-      },
+  bcrypt.hash(password, SALT_ROUNDS)
+    .then((hash) => User.create({
+      name,
+      about,
+      avatar,
+      email,
+      password: hash,
+    }))
+    .then((user) => {
+      res.send({
+        name: user.name, about: user.about, avatar: user.avatar, email: user.email, _id: user._id,
+      });
+    })
+    .catch((err) => {
+      if (err.name === 'ValidationError' || err.name === 'CastError') {
+        next(new CastError('Введены некорректные данные пользователя'));
+      } else if (err.code === 11000) {
+        next(new ConflictError('Пользователь с указанным email уже существует'));
+      } else {
+        next(err);
+      }
     });
-  } catch (err) {
-    if (err.name === 'ValidationError' || err.name === 'CastError') {
-      next(new CastError('Введены некорректные данные пользователя'));
-    } else if (err.code === 11000) {
-      next(new ConflictError('Пользователь с указанным email уже существует'));
-    } else {
-      next(err);
-    }
-  }
 };
 
 // аутентификация
