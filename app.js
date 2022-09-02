@@ -29,7 +29,7 @@ app.use(errors());
 
 app.use(error);
 
-// подключение к mongo и серверу
+// подключение к mongo и серверу есть но тест не начинается
 async function main() {
   await mongoose.connect('mongodb://localhost:27017/mestodb');
   app.listen(PORT, () => {
