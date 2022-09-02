@@ -56,17 +56,19 @@ module.exports.deleteCard = (req, res, next) => {
 };
 
 module.exports.likeCard = (req, res, next) => {
-  Card.findByIdAndUpdate(
-    req.params._id,
-    { $addToSet: { likes: req.user._id } },
-    { new: true },
-  )
+  const { cardId } = req.params;
+  const userId = req.user._id;
+  Card
+    .findByIdAndUpdate(
+      cardId,
+      { $addToSet: { likes: userId } },
+      { new: true },
+    )
+    .orFail(() => {
+      throw new NotFoundError('Карточка с указанным id не найдена');
+    })
     .then((card) => {
-      if (card === null) {
-        throw new NotFoundError('Передан несуществующий id карточки');
-      } else {
-        res.send(card);
-      }
+      res.send({ data: card });
     })
     .catch((err) => {
       if (err.name === 'CastError') {
@@ -78,17 +80,19 @@ module.exports.likeCard = (req, res, next) => {
 };
 
 module.exports.dislikeCard = (req, res, next) => {
-  Card.findByIdAndUpdate(
-    req.params._id,
-    { $pull: { likes: req.user._id } },
-    { new: true },
-  )
+  const { cardId } = req.params;
+  const userId = req.user._id;
+  Card
+    .findByIdAndUpdate(
+      cardId,
+      { $pull: { likes: userId } },
+      { new: true },
+    )
+    .orFail(() => {
+      throw new NotFoundError('Карточка с указанным id не найдена');
+    })
     .then((card) => {
-      if (card === null) {
-        throw new NotFoundError('Передан несуществующий id карточки');
-      } else {
-        res.send(card);
-      }
+      res.send({ data: card });
     })
     .catch((err) => {
       if (err.name === 'CastError') {
