@@ -4,9 +4,9 @@ const User = require('../models/userModel');
 const CastError = require('../errors/cast-error');
 const ConflictError = require('../errors/conflict-error');
 const NotFoundError = require('../errors/not-found-error');
-const { SECRET_KEY } = require('../helpers/constants');
+const { SALT_ROUNDS } = require('../helpers/constants');
 
-const SALT_ROUNDS = 10;
+const { NODE_ENV, JWT_SECRET } = process.env;
 
 // добавить пользователя
 module.exports.createUser = (req, res, next) => {
@@ -48,7 +48,7 @@ module.exports.login = (req, res, next) => {
     .then((user) => {
       const token = jwt.sign(
         { _id: user._id },
-        SECRET_KEY,
+        NODE_ENV === 'production' ? JWT_SECRET : 'very-secret-key',
         { expiresIn: '7d' },
       );
       res.send({ token });

@@ -1,4 +1,4 @@
 const regexURL = /^https?:\/\/[-a-zA-Z\d]+\.[\w\-._~:/?#[\]@!$&'()*+,;=]{1,}#?$/i;
-const SECRET_KEY = 'very-secret-key';
+const SALT_ROUNDS = 10;
 
-module.exports = { regexURL, SECRET_KEY };
+module.exports = { regexURL, SALT_ROUNDS };
