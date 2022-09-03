@@ -2,6 +2,7 @@ require('dotenv').config();
 const mongoose = require('mongoose');
 const express = require('express');
 const { errors } = require('celebrate');
+const cors = require('./middlewares/cors');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
 const { createUser, login } = require('./controllers/usersController');
 const { validateCreateUser, validateLogin } = require('./middlewares/validation');
@@ -16,6 +17,10 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// обработка кросс-доменных запросов
+app.use(cors);
+
+// логгер запросов
 app.use(requestLogger);
 
 app.post('/signin', validateLogin, login);
@@ -30,6 +35,7 @@ app.use((req, res, next) => {
   next(new NotFoundError('Страница не найдена'));
 });
 
+// логгер ошибок
 app.use(errorLogger);
 
 // обрабтчик ошибок для celebrate
