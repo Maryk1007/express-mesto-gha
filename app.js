@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const express = require('express');
 const { errors } = require('celebrate');
+const { requestLogger, errorLogger } = require('./middlewares/logger');
 const { createUser, login } = require('./controllers/usersController');
 const { validateCreateUser, validateLogin } = require('./middlewares/validation');
 const { auth } = require('./middlewares/auth');
@@ -14,6 +15,8 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+app.use(requestLogger);
+
 app.post('/signin', validateLogin, login);
 app.post('/signup', validateCreateUser, createUser);
 
@@ -25,6 +28,8 @@ app.use('/cards', auth, require('./routes/cardRoutes'));
 app.use((req, res, next) => {
   next(new NotFoundError('Страница не найдена'));
 });
+
+app.use(errorLogger);
 
 // обрабтчик ошибок для celebrate
 app.use(errors());
