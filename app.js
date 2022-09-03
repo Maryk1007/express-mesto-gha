@@ -4,13 +4,10 @@ const express = require('express');
 const { errors } = require('celebrate');
 const cors = require('./middlewares/cors');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
-const { createUser, login } = require('./controllers/usersController');
-const { validateCreateUser, validateLogin } = require('./middlewares/validation');
-const { auth } = require('./middlewares/auth');
-const NotFoundError = require('./errors/not-found-error');
 const error = require('./middlewares/error');
+const router = require('./routes/routes');
 
-const { PORT = 3000 } = process.env;
+const { PORT = 3001 } = process.env;
 
 const app = express();
 
@@ -23,17 +20,10 @@ app.use(cors);
 // логгер запросов
 app.use(requestLogger);
 
-app.post('/signin', validateLogin, login);
-app.post('/signup', validateCreateUser, createUser);
+// краш-тест сервера
 
-// роутеры пользователей и карточек
-app.use('/users', auth, require('./routes/userRoutes'));
-app.use('/cards', auth, require('./routes/cardRoutes'));
-
-// обработка несуществующих путей
-app.use((req, res, next) => {
-  next(new NotFoundError('Страница не найдена'));
-});
+// все роуты
+app.use(router);
 
 // логгер ошибок
 app.use(errorLogger);
